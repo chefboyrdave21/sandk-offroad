@@ -1,0 +1,45 @@
+(
+    graphics: (
+        resolution: (1920, 1080),
+        fullscreen: false,
+        vsync: true,
+        msaa: 4,
+        shadows: true,
+        particles: true,
+    ),
+    audio: (
+        master_volume: 1.0,
+        music_volume: 0.7,
+        effects_volume: 0.8,
+        vehicle_volume: 0.9,
+    ),
+    controls: (
+        keyboard: (
+            accelerate: "W",
+            brake: "S",
+            left: "A",
+            right: "D",
+            handbrake: "Space",
+            camera: "C",
+            pause: "Escape",
+            quit: "Q",
+        ),
+        gamepad: (
+            accelerate: "RightTrigger",
+            brake: "LeftTrigger",
+            left: "LeftStickLeft",
+            right: "LeftStickRight",
+            handbrake: "A",
+            camera: "Y",
+            pause: "Start",
+        ),
+    ),
+    game: (
+        difficulty: 1.0,
+        vehicle_type: "default",
+        track_name: "desert",
+        ai_difficulty: 0.5,
+        damage_enabled: true,
+        weather_enabled: true,
+    ),
+) 
