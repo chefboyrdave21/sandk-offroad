@@ -1,0 +1,25 @@
+{
+  "name": "Sample Truck",
+  "mass": 2500.0,
+  "wheelbase": 3.2,
+  "track_width": 1.8,
+  "suspension": {
+    "spring_stiffness": 45000.0,
+    "damping": 4500.0,
+    "travel": 0.3,
+    "preload": 0.1
+  },
+  "engine": {
+    "max_power": 300.0,
+    "max_torque": 450.0,
+    "idle_rpm": 800.0,
+    "max_rpm": 6500.0,
+    "power_curve": [
+      [800, 0.2],
+      [2000, 0.4],
+      [4000, 0.8],
+      [5500, 1.0],
+      [6500, 0.85]
+    ]
+  }
+} 

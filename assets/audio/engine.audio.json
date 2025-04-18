@@ -1,0 +1,40 @@
+{
+    "name": "V8 Engine",
+    "description": "High performance V8 engine sound configuration",
+    "base_samples": {
+        "idle": "sounds/engine/idle.ogg",
+        "low_rev": "sounds/engine/low_rev.ogg",
+        "mid_rev": "sounds/engine/mid_rev.ogg",
+        "high_rev": "sounds/engine/high_rev.ogg"
+    },
+    "crossfade_points": {
+        "idle_to_low": 1000,
+        "low_to_mid": 3000,
+        "mid_to_high": 5000
+    },
+    "volume_curve": {
+        "idle": 0.3,
+        "low": 0.5,
+        "mid": 0.7,
+        "high": 1.0
+    },
+    "pitch_curve": {
+        "min_rpm": 800,
+        "max_rpm": 7000,
+        "min_pitch": 0.8,
+        "max_pitch": 1.2
+    },
+    "effects": {
+        "reverb": {
+            "enabled": true,
+            "room_size": 0.6,
+            "damping": 0.2,
+            "wet_level": 0.3,
+            "dry_level": 0.7
+        },
+        "doppler": {
+            "enabled": true,
+            "factor": 1.0
+        }
+    }
+} 

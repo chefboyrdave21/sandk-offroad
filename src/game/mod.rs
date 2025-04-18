@@ -2,61 +2,111 @@ use bevy::prelude::*;
 use bevy::render::render_resource::PrimitiveTopology;
 use crate::terrain::TerrainPlugin;
 use bevy_rapier3d::prelude::*;
+use bevy::app::PluginGroupBuilder;
 
 pub mod states;
 pub mod ui;
 #[cfg(test)]
 pub mod tests;
 
-// Jeep TJ dimensions (in meters)
-const JEEP_LENGTH: f32 = 4.17; // Length
-const JEEP_WIDTH: f32 = 1.74;  // Width
-const JEEP_HEIGHT: f32 = 1.75; // Height
-const WHEEL_RADIUS: f32 = 0.4; // For 31" tires
-const WHEELBASE: f32 = 2.38;   // Distance between front and rear axles
-const TRACK_WIDTH: f32 = 1.5;  // Distance between left and right wheels
+mod plugins;
+mod systems;
+mod components;
+mod resources;
 
-#[derive(Component)]
-pub struct MainCamera {
-    pub follow_distance: f32,
-    pub follow_height: f32,
-    pub follow_smoothness: f32,
+mod state;
+mod debug;
+mod input;
+mod vehicle;
+mod physics;
+mod camera;
+
+pub use plugins::*;
+pub use systems::*;
+pub use components::*;
+pub use resources::*;
+
+pub use state::GameState;
+pub use debug::DebugInfo;
+pub use input::InputState;
+pub use vehicle::VehicleConfig;
+
+// Constants
+pub mod constants {
+    // Vehicle dimensions (in meters)
+    pub const JEEP_LENGTH: f32 = 4.17;
+    pub const JEEP_WIDTH: f32 = 1.74;
+    pub const JEEP_HEIGHT: f32 = 1.75;
+    pub const WHEEL_RADIUS: f32 = 0.4;
+    pub const WHEELBASE: f32 = 2.38;
+    pub const TRACK_WIDTH: f32 = 1.5;
+    pub const MAX_STEERING_ANGLE: f32 = 0.35;
 }
 
-impl Default for MainCamera {
-    fn default() -> Self {
-        Self {
-            follow_distance: 15.0,
-            follow_height: 8.0,
-            follow_smoothness: 5.0,
-        }
+use constants::*;
+
+// Re-export commonly used components
+pub use components::{MainCamera, CameraFollow, Vehicle, Player, Suspension};
+
+/// Main plugin group for the game that sets up all core systems and resources
+pub struct GamePluginGroup;
+
+impl PluginGroup for GamePluginGroup {
+    fn build(self) -> PluginGroupBuilder {
+        PluginGroupBuilder::start::<Self>()
+            .add(GamePlugin)
+            .add(state::StatePlugin)
+            .add(debug::DebugPlugin) 
+            .add(input::InputPlugin)
+            .add(vehicle::VehiclePlugin)
+            .add(physics::PhysicsPlugin)
+            .add(camera::CameraPlugin)
+            .add(ui::UiPlugin)
     }
 }
 
-#[derive(Component, Default)]
-pub struct CameraFollow {
-    pub target: Option<Entity>,
-    pub offset: Vec3,
-    pub smoothness: f32,
+/// Represents the different states the game can be in
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default, States)]
+pub enum GameState {
+    #[default]
+    Loading,
+    MainMenu,
+    InGame,
+    Paused,
 }
 
+/// Main plugin for the SandK Offroad game
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins((
-            RapierPhysicsPlugin::<NoUserData>::default(),
-            RapierDebugRenderPlugin::default(),
-        ))
-        .add_plugins(TerrainPlugin)
-        .add_systems(Startup, setup_game)
-        .add_systems(Update, (
-            update_vehicle_movement,
-            update_camera_follow,
-            debug_vehicle_state,
-            update_suspension,
-        ).chain());
+        app
+            // Core game systems
+            .add_plugins(plugins::CorePlugins)
+            // Game state management
+            .init_resource::<resources::GameState>()
+            // Add core systems
+            .add_systems(Startup, systems::setup)
+            .add_systems(Update, (
+                systems::handle_input,
+                systems::update_game_state,
+            ));
     }
+}
+
+/// Initializes the game with default configuration
+pub fn init_game() -> App {
+    let mut app = App::new();
+    
+    app.add_plugins(GamePluginGroup);
+    
+    #[cfg(debug_assertions)]
+    {
+        use bevy_inspector_egui::quick::WorldInspectorPlugin;
+        app.add_plugins(WorldInspectorPlugin::new());
+    }
+    
+    app
 }
 
 #[derive(Component)]
@@ -95,8 +145,6 @@ impl Default for Vehicle {
 pub struct Player {
     pub health: f32,
 }
-
-const MAX_STEERING_ANGLE: f32 = 0.35; // About 20 degrees max steering angle
 
 #[derive(Component)]
 pub struct Suspension {
@@ -471,4 +519,49 @@ fn update_suspension(
         // Apply total suspension force
         ext_force.force += total_force;
     }
+}
+
+// System implementations
+fn setup_physics(mut commands: Commands) {
+    // Initialize physics world and constraints
+}
+
+fn setup_camera(mut commands: Commands) {
+    // Setup main game camera
+}
+
+fn update_game_state(
+    mut state: ResMut<GameState>,
+    time: Res<Time>,
+) {
+    // Update core game state
+}
+
+fn update_physics(
+    mut physics_world: ResMut<PhysicsWorld>,
+    time: Res<Time>,
+) {
+    // Update physics simulation
+}
+
+fn update_vehicle(
+    mut vehicles: Query<(&mut Transform, &mut Vehicle)>,
+    input: Res<InputState>,
+    time: Res<Time>,
+) {
+    // Update vehicle physics and controls
+}
+
+fn update_camera(
+    mut camera: Query<&mut Transform, With<Camera>>,
+    target: Query<&Transform, With<Vehicle>>,
+) {
+    // Update camera position and orientation
+}
+
+fn update_ui(
+    mut ui_state: ResMut<UiState>,
+    state: Res<GameState>,
+) {
+    // Update UI elements based on game state
 } 
